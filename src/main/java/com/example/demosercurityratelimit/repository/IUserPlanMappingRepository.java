@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface IUserPlanMappingRepository extends JpaRepository<UserPlanMapping,Long> {
+public interface IUserPlanMappingRepository extends JpaRepository<UserPlanMapping,Integer> {
     Boolean existsByUserAndPlan(User user, Plan plan);
 
     Optional<UserPlanMapping> findByUserId(Long userId);

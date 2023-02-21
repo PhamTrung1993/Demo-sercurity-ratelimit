@@ -14,24 +14,24 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-public class RatelimitServiceImp {
+public class RateLimitService implements IRateLimitService {
     private final Map<Long, Bucket> bucketCache = new ConcurrentHashMap<>();
     @Autowired
     private IUserPlanMappingRepository userPlanMappingRepository;
 
-    public Bucket resolveBucket(final Long userId) {
+    public Bucket resolveBucket(Long userId) {
         return bucketCache.computeIfAbsent(userId, this::newBucket);
     }
 
-    public void deleteIfExists(final Long userId) {
-        bucketCache.remove(userId);
-    }
+//    public void deleteIfExists(Long userId) {
+//        bucketCache.remove(userId);
+//    }
 
-    private Bucket newBucket(Long userId) {
+    public Bucket newBucket(Long userId) {
         Plan plan = userPlanMappingRepository.findByUserId(userId).get().getPlan();
         final Integer limitPerHour = plan.getLimitPerHour();
         return Bucket4j.builder()
-                .addLimit(Bandwidth.classic(limitPerHour, Refill.intervally(limitPerHour, Duration.ofHours(1))))
+                .addLimit(Bandwidth.classic(limitPerHour, Refill.intervally(limitPerHour, Duration.ofSeconds(1))))
                 .build();
     }
 }

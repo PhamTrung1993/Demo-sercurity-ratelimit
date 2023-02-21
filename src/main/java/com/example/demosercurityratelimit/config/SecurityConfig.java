@@ -1,5 +1,6 @@
 package com.example.demosercurityratelimit.config;
 
+import com.example.demosercurityratelimit.service.user.CustomUserDetailService;
 import com.example.demosercurityratelimit.service.user.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +21,7 @@ import org.springframework.web.cors.CorsConfiguration;
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
-    private IUserService userService;
+    private CustomUserDetailService customUserDetailService;
     @Autowired
     JwtAuthenticationFilter jwtAuthenticationFilter;
 
@@ -32,8 +33,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public AuthenticationManager authenticationManager() throws Exception {
         return super.authenticationManager();
     }
-
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
@@ -60,6 +59,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userService).passwordEncoder(NoOpPasswordEncoder.getInstance());
+        auth.userDetailsService(customUserDetailService).passwordEncoder(NoOpPasswordEncoder.getInstance());
     }
 }

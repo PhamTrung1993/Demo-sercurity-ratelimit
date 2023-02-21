@@ -2,7 +2,7 @@ package com.example.demosercurityratelimit.config;
 
 import com.example.demosercurityratelimit.model.User;
 import com.example.demosercurityratelimit.repository.IUserRepository;
-import com.example.demosercurityratelimit.service.ratelimit.RatelimitServiceImp;
+import com.example.demosercurityratelimit.service.ratelimit.IRateLimitService;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.ConsumptionProbe;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
     @Autowired
     private IUserRepository userRepository;
     @Autowired
-    private RatelimitServiceImp rateLimitingService;
+    private IRateLimitService rateLimitingService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -35,6 +35,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
             final ConsumptionProbe probe = tokenBucket.tryConsumeAndReturnRemaining(1);
 
             if (!probe.isConsumed()) {
+                long waitForRefill = probe.getNanosToWaitForRefill() / 1_000_000_000;
+                response.addHeader("Retry After Seconds", String.valueOf(waitForRefill));
                 response.sendError(HttpStatus.TOO_MANY_REQUESTS.value(),
                         "Request limit linked to your current plan has been exhausted");
             }

@@ -1,6 +1,7 @@
 package com.example.demosercurityratelimit.config;
 
 import com.example.demosercurityratelimit.service.jwt.JwtService;
+import com.example.demosercurityratelimit.service.user.CustomUserDetailService;
 import com.example.demosercurityratelimit.service.user.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,7 +22,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private JwtService jwtService;
 
     @Autowired
-    private IUserService userService;
+    private CustomUserDetailService customUserDetailService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -32,7 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (jwt != null && jwtService.validateJwtToken(jwt)) {
                 String username = jwtService.getAccountFromJwtToken(jwt);
 
-                UserDetails userDetails = userService.loadUserByUsername(username);
+                UserDetails userDetails = customUserDetailService.loadUserByUsername(username);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
